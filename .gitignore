@@ -52,4 +52,4 @@ logs/
 temp/
 
 # Node modules (if using npm/frontend)
-node_modules/
+node_modules/*.pkl
