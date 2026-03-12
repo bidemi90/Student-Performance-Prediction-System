@@ -4,8 +4,19 @@ import hashlib
 import os
 from dotenv import load_dotenv
 
-# Initialize environment variables
+# Try to load local .env (only works on your PC)
 load_dotenv()
+
+# Function to safely get secrets from Streamlit or Local Env
+def get_config(key):
+    # Check if running on Streamlit Cloud
+    if key in st.secrets:
+        return st.secrets[key]
+    # Fallback to local .env/environment variables
+    return os.getenv(key)
+
+# Retrieve and validate MONGO_URI
+MONGO_URI = get_config("MONGO_URI")
 
 # System Configuration
 st.set_page_config(page_title="Student Performance Prediction System", page_icon="🔐", layout="centered")
@@ -13,11 +24,11 @@ st.set_page_config(page_title="Student Performance Prediction System", page_icon
 # Database Connection Execution
 @st.cache_resource
 def init_connection():
-    uri = os.getenv("MONGO_URI")
-    if not uri:
-        st.error("Environment variable MONGO_URI not found. Verify .env file configuration.")
+    # Uses the MONGO_URI variable retrieved via get_config
+    if not MONGO_URI:
+        st.error("Configuration Error: MONGO_URI not found in Secrets or .env file.")
         st.stop()
-    return pymongo.MongoClient(uri)
+    return pymongo.MongoClient(MONGO_URI)
 
 try:
     client = init_connection()
