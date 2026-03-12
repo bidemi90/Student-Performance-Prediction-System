@@ -4,9 +4,11 @@ import pandas as pd
 import os
 from dotenv import load_dotenv
 
+st.write("Debug - Secrets keys found:", list(st.secrets.keys()))
+
+
 # Try to load local .env (only works on your PC)
 load_dotenv()
-st.write("Debug - Secrets keys found:", list(st.secrets.keys()))
 # Function to safely get secrets from Streamlit or Local Env
 def get_config(key):
     # Check if running on Streamlit Cloud
