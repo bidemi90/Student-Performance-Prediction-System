@@ -5,3 +5,12 @@ joblib
 pymongo[srv]
 openpyxl
 python-dotenv
+
+streamlit
+pymongo
+dnspython
+pandas
+joblib
+python-dotenv
+scikit-learn
+openpyxl
