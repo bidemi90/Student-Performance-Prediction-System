@@ -4,35 +4,29 @@ import hashlib
 import os
 from dotenv import load_dotenv
 
+# System Configuration MUST precede all other Streamlit commands
+st.set_page_config(page_title="Student Performance Prediction System", page_icon="🔐", layout="centered")
 
-def get_config(key):
-    # This will print the keys Streamlit actually sees to your screen
-    st.write(f"DEBUG: Looking for {key}. Available secrets: {list(st.secrets.keys())}")
-    if key in st.secrets:
-        return st.secrets[key]
-    return os.getenv(key)
-
-# Try to load local .env (only works on your PC)
+# Initialize environment variables for local fallback
 load_dotenv()
 
-# Function to safely get secrets from Streamlit or Local Env
+# Unified Configuration Function
 def get_config(key):
-    # Check if running on Streamlit Cloud
+    # Debug output directly to UI
+    st.write(f"System Debug - Loaded Keys: {list(st.secrets.keys())}")
+    
+    # Check Streamlit Secrets
     if key in st.secrets:
         return st.secrets[key]
-    # Fallback to local .env/environment variables
+    # Check Environment Variables
     return os.getenv(key)
 
 # Retrieve and validate MONGO_URI
 MONGO_URI = get_config("MONGO_URI")
 
-# System Configuration
-st.set_page_config(page_title="Student Performance Prediction System", page_icon="🔐", layout="centered")
-
 # Database Connection Execution
 @st.cache_resource
 def init_connection():
-    # Uses the MONGO_URI variable retrieved via get_config
     if not MONGO_URI:
         st.error("Configuration Error: MONGO_URI not found in Secrets or .env file.")
         st.stop()
