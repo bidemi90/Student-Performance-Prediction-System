@@ -5,6 +5,20 @@ import pymongo
 import os
 from dotenv import load_dotenv
 
+# Try to load local .env (only works on your PC)
+load_dotenv()
+
+# Function to safely get secrets from Streamlit or Local Env
+def get_config(key):
+    # Check if running on Streamlit Cloud
+    if key in st.secrets:
+        return st.secrets[key]
+    # Fallback to local .env/environment variables
+    return os.getenv(key)
+
+# Retrieve and validate MONGO_URI
+MONGO_URI = get_config("MONGO_URI")
+
 # Authentication Verification
 if 'authenticated' not in st.session_state or not st.session_state['authenticated']:
     st.warning("Authentication required. Navigate to the main portal to initiate a session.")
@@ -23,9 +37,9 @@ st.markdown("---")
 # Database Connection Initialization
 @st.cache_resource
 def init_connection():
-    load_dotenv()
-    uri = os.getenv("MONGO_URI")
-    return pymongo.MongoClient(uri)
+    if not MONGO_URI:
+        raise ValueError("MONGO_URI not found in Secrets or .env file.")
+    return pymongo.MongoClient(MONGO_URI)
 
 try:
     client = init_connection()
@@ -54,8 +68,6 @@ st.success("Intelligence Tier Active: Voting Classifier model loaded successfull
 # Data Retrieval
 df = st.session_state['raw_data'].copy()
 
-# Feature Engineering (Target Variable Exclusion)
-# Removes ExamScore and StudentID to ensure early prediction parameters as established in previous logic.
 # Feature Engineering (Target and Identifier Exclusion)
 columns_to_drop = []
 if 'ExamScore' in df.columns:
@@ -76,9 +88,7 @@ if st.button("Execute Risk Prediction Engine"):
             # Generate predictions
             predictions = model.predict(X_predict)
             
-            # Map numeric output to categorical labels if required by your model output format
-            # Assumes 0: At-Risk, 1: Average, 2: Good, 3: Excellent based on standard grading scales
-            # Adjust mapping dictionary if your model outputs strings directly or uses different integers
+            # Map numeric output to categorical labels
             if pd.api.types.is_numeric_dtype(predictions):
                 label_mapping = {0: "At-Risk", 1: "Average", 2: "Good", 3: "Excellent"}
                 mapped_predictions = [label_mapping.get(p, "Unknown") for p in predictions]
@@ -91,10 +101,9 @@ if st.button("Execute Risk Prediction Engine"):
             st.success("Prediction execution complete. Results generated.")
             
             # Database Ingestion
-            # Convert DataFrame to dictionary records for MongoDB insertion
             records_to_insert = df.to_dict('records')
             
-            # Clear existing records to prevent duplication on multiple runs during testing
+            # Clear existing records to prevent duplication
             predictions_collection.delete_many({})
             
             # Insert new batch
