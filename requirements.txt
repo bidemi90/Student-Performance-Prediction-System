@@ -1,12 +1,4 @@
 streamlit
-pandas
-scikit-learn
-joblib
-pymongo[srv]
-openpyxl
-python-dotenv
-
-streamlit
 pymongo
 dnspython
 pandas
