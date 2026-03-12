@@ -4,6 +4,14 @@ import hashlib
 import os
 from dotenv import load_dotenv
 
+
+def get_config(key):
+    # This will print the keys Streamlit actually sees to your screen
+    st.write(f"DEBUG: Looking for {key}. Available secrets: {list(st.secrets.keys())}")
+    if key in st.secrets:
+        return st.secrets[key]
+    return os.getenv(key)
+
 # Try to load local .env (only works on your PC)
 load_dotenv()
 
