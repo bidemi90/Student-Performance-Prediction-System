@@ -4,6 +4,20 @@ import pymongo
 import os
 from dotenv import load_dotenv
 
+# Try to load local .env (only works on your PC)
+load_dotenv()
+
+# Function to safely get secrets from Streamlit or Local Env
+def get_config(key):
+    # Check if running on Streamlit Cloud
+    if key in st.secrets:
+        return st.secrets[key]
+    # Fallback to local .env/environment variables
+    return os.getenv(key)
+
+# Retrieve and validate MONGO_URI
+MONGO_URI = get_config("MONGO_URI")
+
 # Authentication Verification
 if 'authenticated' not in st.session_state or not st.session_state['authenticated']:
     st.warning("Authentication required. Navigate to the main portal to initiate a session.")
@@ -17,9 +31,10 @@ st.markdown("---")
 # Database Connection Initialization
 @st.cache_resource
 def init_connection():
-    load_dotenv()
-    uri = os.getenv("MONGO_URI")
-    return pymongo.MongoClient(uri)
+    # Uses the MONGO_URI variable retrieved via get_config
+    if not MONGO_URI:
+        raise ValueError("MONGO_URI not found in Secrets or .env file.")
+    return pymongo.MongoClient(MONGO_URI)
 
 try:
     client = init_connection()
