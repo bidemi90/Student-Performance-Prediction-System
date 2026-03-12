@@ -1,5 +1,21 @@
 import streamlit as st
 import pandas as pd
+import os
+from dotenv import load_dotenv
+
+# Try to load local .env (only works on your PC)
+load_dotenv()
+
+# Function to safely get secrets from Streamlit or Local Env
+def get_config(key):
+    # Check if running on Streamlit Cloud
+    if key in st.secrets:
+        return st.secrets[key]
+    # Fallback to local .env/environment variables
+    return os.getenv(key)
+
+# Configuration variables (Ready for use if needed in this module)
+MONGO_URI = get_config("MONGO_URI")
 
 # Authentication Verification
 if 'authenticated' not in st.session_state or not st.session_state['authenticated']:
