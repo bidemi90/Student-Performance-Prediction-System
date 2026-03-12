@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 
 # Try to load local .env (only works on your PC)
 load_dotenv()
-
+st.write("Debug - Secrets keys found:", list(st.secrets.keys()))
 # Function to safely get secrets from Streamlit or Local Env
 def get_config(key):
     # Check if running on Streamlit Cloud
@@ -32,7 +32,7 @@ st.markdown("---")
 # Database Connection Execution
 @st.cache_resource
 def init_connection():
-    # Uses the MONGO_URI variable retrieved via get_config
+    # Uses the _URI variable retrieved via get_config
     if not MONGO_URI:
         raise ValueError("MONGO_URI not found in Secrets or .env file.")
     return pymongo.MongoClient(MONGO_URI)
