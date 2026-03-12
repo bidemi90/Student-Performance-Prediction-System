@@ -4,7 +4,7 @@ import hashlib
 import os
 from dotenv import load_dotenv
 
-# System Configuration MUST precede all other Streamlit commands
+# System Configuration
 st.set_page_config(page_title="Student Performance Prediction System", page_icon="🔐", layout="centered")
 
 # Initialize environment variables for local fallback
@@ -12,9 +12,6 @@ load_dotenv()
 
 # Unified Configuration Function
 def get_config(key):
-    # Debug output directly to UI
-    st.write(f"System Debug - Loaded Keys: {list(st.secrets.keys())}")
-    
     # Check Streamlit Secrets
     if key in st.secrets:
         return st.secrets[key]
